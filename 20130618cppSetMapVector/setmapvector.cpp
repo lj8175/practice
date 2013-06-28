@@ -78,12 +78,6 @@ int main()
     pdu_protocol_header header;
     int ret = struct_tvec_pack(&itvec, (uint8_t *)buf, &bufLen, &header);
     cout << "pdu_protocol_header len:"<< sizeof(pdu_protocol_header) <<"  header bufLen:" << bufLen << endl; //23  227
-    TpnsCommonHeader theader;
-    bzero(&theader, sizeof(theader));
-    //theader.flag = 1;
-    //printf("flag .. : %d %d %d %d\n", ((char*)&theader)[0],((char*)&theader)[1], ((char*)&theader)[2], ((char*)&theader)[3]);
-//    ret = struct_tvec_pack(&itvec, (uint8_t *)buf, &bufLen, &theader);
-    cout << "TpnsCommonHeader len:"<< sizeof(theader) <<"  header bufLen:" << bufLen << endl; //23  227
     ret = struct_tvec_pack(&itvec, (uint8_t *)buf, &bufLen, NULL);
     cout << "bufLen:" << bufLen << endl; //202
     for(int i=0; i<NUM_FINDERS; i++)
