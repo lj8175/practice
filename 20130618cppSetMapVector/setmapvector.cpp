@@ -74,8 +74,11 @@ int main()
 
     char buf[BUF_LEN];
     int bufLen = BUF_LEN;
-    int ret = struct_tvec_pack(&itvec, (uint8_t *)buf, &bufLen, NULL);
-    //cout << bufLen << endl; //202
+    pdu_protocol_header header;
+    int ret = struct_tvec_pack(&itvec, (uint8_t *)buf, &bufLen, &header);
+    cout << "pdu_protocol_header len:"<< sizeof(pdu_protocol_header) <<"  header bufLen:" << bufLen << endl; //23  227
+    ret = struct_tvec_pack(&itvec, (uint8_t *)buf, &bufLen, NULL);
+    cout << "bufLen:" << bufLen << endl; //202
     for(int i=0; i<NUM_FINDERS; i++)
     {
         tvec itvec2;
