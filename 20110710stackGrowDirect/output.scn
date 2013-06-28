@@ -1,0 +1,4 @@
+Running function: 80487E2 _Z5funcBv (./showBacktrace)
+Return  function: 80487F4 _Z5funcAv (./showBacktrace)
+Running address[80487E2]
+Return  address[80487F4]

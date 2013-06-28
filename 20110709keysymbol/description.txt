@@ -1,0 +1,30 @@
+一个文件中有多行信息，每一行信息中，第一个为一个key，后面用空格间隔若干symbol，例如： 
+B A C D E（每一行中的一个symbol至多出现一次，且不与key重复），表示B<A B<C B<D B<E关联。 
+若一行中只有一个值，如 
+C 
+则表示无关联。 
+现在求写出一个算法，判断一个文件下的所有行中所包含的关联，能否囊括所有元素的关联，使之形成一个sort链，达到例如：A<B<C<D的效果。 
+例1 
+input: 
+A B C 
+B C 
+C 
+（means:A<B A<C B<C） 
+output： 
+It can be sorted determine. 
+例2 
+input: 
+A B 
+B A 
+C 
+（means:A<B B<A） 
+output: 
+It can't be sorted determine. 
+例3 
+input: 
+A B 
+A C 
+C 
+(means:A<B A<C) 
+output: 
+It can't be sorted determine.

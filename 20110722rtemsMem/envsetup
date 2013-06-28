@@ -1,0 +1,16 @@
+
+# set path back to default
+export PATH=/usr/lib/qt-3.3/bin:/usr/lib/ccache:/usr/local/bin:/usr/bin:/bin:/usr/local/sbin:/usr/sbin:/sbin:/home/rtems/bin
+
+# Add RTEMS 4.10 Tools
+export PATH=/opt/rtems-4.10/bin:${PATH}
+
+# Add RTEMS Helper Scripts
+export PATH=/home/rtems/rtems-4.10-work/rtems-testing/bin:${PATH}
+
+# Set r as shortcut to RTEMS root directory
+export r=/home/rtems/rtems-4.10-work/rtems
+
+# Let user see what was set
+echo $r
+echo $PATH

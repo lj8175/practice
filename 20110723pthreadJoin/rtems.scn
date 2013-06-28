@@ -1,0 +1,6 @@
+pthread_attr_getdetachstate(default): PTHREAD_CREATE_JOINABLE
+Thread b010002 Stack: 746484 -- 946494 (2048k) 
+Thread b010003 Stack: 946a98 -- b46aa8 (2048k) 
+Thread b010004 Stack: b470ac -- d470bc (2048k) 
+Thread b010005 Stack: d476c0 -- f476d0 (2048k) 
+Thread b010006 Stack: f47cd4 -- 1147ce4 (2048k) 

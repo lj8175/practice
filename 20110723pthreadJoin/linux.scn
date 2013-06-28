@@ -1,0 +1,6 @@
+pthread_attr_getdetachstate(default): PTHREAD_CREATE_JOINABLE
+New Thread b77dcb70: PTHREAD_CREATE_JOINABLE exit
+New Thread b6fdbb70: PTHREAD_CREATE_JOINABLE exit
+New Thread b67dab70: PTHREAD_CREATE_JOINABLE exit
+New Thread b5fd9b70: PTHREAD_CREATE_JOINABLE exit
+New Thread b57d8b70: PTHREAD_CREATE_JOINABLE exit

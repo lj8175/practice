@@ -1,0 +1,8 @@
+qemu is /usr/bin/qemu
+Initialized console on port COM1 9600-8-N-1
+
+RTEMS Work Space : 0x12B830 -- 0x136870 (44k)
+RTEMS Malloc Heap : 0x136870 -- 0x1FEFD000 (509M)
+
+EXECUTIVE SHUTDOWN! Any key to reboot...
+

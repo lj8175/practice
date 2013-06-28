@@ -1,0 +1,27 @@
+0
+T1 - Join with T2
+T2 (b010003) pthread_kill SIG_SUSPEND b010001
+T2 (b010003) pthread_kill SIG_SUSPEND b010002
+SIG: task B010001 dispatching signal 25
+run in GC_suspend_handler times: 1
+SIG: task B010002 dispatching signal 25
+run in GC_suspend_handler times: 2
+T2 (b010003) pthread_kill SIG_THR_RESTART b010001
+SIGUNBLOCK - YES thread 0x0B010001 with 26
+T2 (b010003) pthread_kill SIG_THR_RESTART b010002
+SIGUNBLOCK - YES thread 0x0B010002 with 26
+sleep returned 0/Interrupted system call
+1
+T2 - exit
+EXIT - block 0x0B010003
+T1 - exit
+EXIT - block 0x0B010002
+sleep returned 0/Interrupted system call
+2
+sleep returned 0/Interrupted system call
+3
+sleep returned 0/Interrupted system call
+4
+sleep returned 0/Interrupted system call
+Back from MainThread pthread_join times: 2
+*** END OF TEST ***

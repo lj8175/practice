@@ -1,0 +1,7 @@
+module TEST_JEC_VECTOR
+{
+struct tvec
+{
+1 require vector<int> ivec;
+};
+};

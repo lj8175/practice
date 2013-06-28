@@ -1,0 +1,25 @@
+1:
+A B C
+B C
+C
+
+2:
+A B
+B A
+
+3:
+A B C D
+B C D
+C D
+D
+
+3:
+A B
+C D
+B C
+
+4:
+D A
+A C
+B C A
+D B

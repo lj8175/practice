@@ -1,0 +1,23 @@
+0
+T1 - Join with T2
+T2 (b7015b70) pthread_kill SIG_SUSPEND b78176c0
+run in GC_suspend_handler times: 1
+T2 (b7015b70) pthread_kill SIG_SUSPEND b7816b70
+run in GC_suspend_handler times: 2
+T2 (b7015b70) pthread_kill SIG_THR_RESTART b78176c0
+run in GC_restart_handler 3
+sleep returned 1/Interrupted system call
+1
+T2 (b7015b70) pthread_kill SIG_THR_RESTART b7816b70
+run in GC_restart_handler 4
+T2 - exit
+T1 - exit
+sleep returned 0/Interrupted system call
+2
+sleep returned 0/Interrupted system call
+3
+sleep returned 0/Interrupted system call
+4
+sleep returned 0/Interrupted system call
+Back from MainThread pthread_join times: 4
+*** END OF TEST ***
