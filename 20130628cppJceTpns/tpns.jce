@@ -1,0 +1,131 @@
+//TPNS内部通信协议
+module TPNS_PUSH_PROTOCOL
+{
+	struct UUID
+	{
+		0 require byte bits[16];
+	};
+	
+	enum TPNS_MSG_TYPE
+	{
+		TYPE_NOTIFY, //Notify消息，TPNS负责展示
+		TYPE_TRANSPARENT, //透传消息，App自己处理
+	};
+	
+	//Push Service展示的消息
+	struct NotifyMsg
+	{
+		0 require string title;
+		1 require string content;
+		2 optional string sound;
+		3 optional unsigned byte lightOn;
+		4 optional unsigned byte vibrateOn; 
+	};
+	//App自己展示的消息
+	struct TransparentMsg
+	{
+		0 require string msg;
+	};
+	struct TpnsPushPayload
+	{
+		0 require TPNS_MSG_TYPE type;
+		1 optional NotifyMsg notifyMsg;
+		2 optional TransparentMsg transparentMsg;
+	};
+	
+	//TPNS服务推送消息至客户端 (CMD_PUSH)
+	struct TpnsPushReq
+	{
+		0 require unsigned int accessId; //表示应用访问ID，在MC管理台登记注册时获取
+		1 require UUID msgId; //通知消息ID，中央逻辑server生成，用于离线消息存储，不推送
+		2 require string token; //TPNS分配给指定设备指定应用的识别码
+		3 require TpnsPushPayload payload; //消息体
+        4 require string activity; //用于展示消息的Activity
+	};
+    //注：在不能维持长连接的环境下（如wap），此协议包作为心跳包的返回
+
+	//客户端向TPNS拉取配置(CMD_PULLCONFIG)
+	//请求结构体用只用请求头即可
+	//应答:
+	struct TpnsConfigRsp
+	{
+		0 optional unsigned int connectTimeout; //连接超时时间
+		1 optional unsigned int recTimeout; //接收超时时间
+		2 optional unsigned short reConCount; //重试次数
+		3 optional unsigned int reConInterval; //重试时间间隔
+		4 optional unsigned int heartbeatInterval; //心跳间隔时间
+	};
+	
+	struct DeviceInfo
+	{
+		0 optional string imei;
+		1 optional string model;//手机型号
+		2 optional string os;//操作系统
+		3 optional string network;//网络类型
+		4 optional string sdCard;//SD卡
+		5 optional string sdDouble;//双卡双待
+		6 optional string resolution;//分辨率
+		7 optional string manu;//厂家
+		8 optional string apiLevel;//android api版本
+	};
+	
+	//客户端向TPNS服务注册 (CMD_REGISTER)
+	struct TpnsRegisterReq
+	{
+		0 require unsigned int accessId;
+		1 require string accessKey; //表示应用客户端访问TPNS服务的密码，在MC控制台登记注册时获取
+		2 require string deviceId; //设备唯一标识码
+		3 require string appCert;//
+		4 optional string account; //登录账号
+		5 optional string ticket; //登录态票据
+        //下面信息只有该设备首次注册时需要带
+		6 optional unsigned byte deviceType; //iOS,Android等
+        7 optional DeviceInfo deviceInfo; //设备信息：分辨率，系统版本等
+	};
+	struct TpnsRegisterRsp
+	{
+	   0 optional unsigned byte sdkVersion;
+	};
+	//客户端注销 (CMD_UNREGISTER)，用于用户卸载应用
+	struct AppInfo
+	{
+		0 require unsigned int accessId;
+		1 require string accessKey;
+	};
+
+	struct TpnsUnregisterReq 
+	{
+		0 require AppInfo appInfo;
+		1 require string token;
+		2 require string deviceId;
+	};
+	
+	//客户端掉线重连 (CMD_RECONNECT)
+	struct TpnsReconnectReq
+	{
+		0 require string token;
+		1 require string deviceId;
+        2 require unsigned byte networkType; //网络类型
+		3 optional vector<AppInfo> unregisterAppList;
+	};
+	struct TpnsReconnectRsp
+    {
+	  0 require unsigned byte sdkVersion;
+    };
+	//心跳包 (CMD_HEARTBEAT)
+	//只用2个byte的通用包头；若无长连接环境，则带上push信息，短连接的心跳就相当于重连
+	
+	//测速包 (CMD_SPEEDTEST)
+	//通用包头 + 请求包头
+	
+	//应用卸载反馈 (CMD_UNINSTALL)
+	struct TpnsUninstallReq
+	{
+		0 require AppInfo appInfo;
+		1 require string token;
+		2 require string deviceId;
+		3 optional unsigned int timestamp;
+	};
+	
+	//响应包直接使用通用头部 + 响应头部，暂不附带额外信息
+};

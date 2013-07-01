@@ -1,5 +1,6 @@
 SRCS =  main.cpp \
-        ../20130618cppSetMapVector/pdu_header.cpp
+        tpns.cpp \
+        pdu_header.cpp
 
 BIN = main
 
@@ -7,9 +8,9 @@ CLEAN = *.o \
         */*.o \
         $(BIN)
 
-INC = -I../../tlib -I../20130618cppSetMapVector
+INC = 
 
-LIB = -lpthread -lm -L../../tlib 
+LIB = -lpthread -lm 
 
 CPPFLAGS = -g -O2 -std=c++0x
 

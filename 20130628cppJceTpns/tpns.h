@@ -19,46 +19,6 @@ struct pdu_protocol_header;
 
 namespace TPNS_PUSH_PROTOCOL
 {
-    enum TPNS_CMD
-    {
-        CMD_PUSH,
-        CMD_PULLCONFIG,
-        CMD_REGISTER,
-        CMD_UNREGISTER,
-        CMD_RECONNECT,
-        CMD_HEARTBEAT,
-        CMD_SPEEDTEST,
-        CMD_UNINSTALL,
-    };
-    inline string etos(const TPNS_CMD & e)
-    {
-        switch(e)
-        {
-            case CMD_PUSH: return "CMD_PUSH";
-            case CMD_PULLCONFIG: return "CMD_PULLCONFIG";
-            case CMD_REGISTER: return "CMD_REGISTER";
-            case CMD_UNREGISTER: return "CMD_UNREGISTER";
-            case CMD_RECONNECT: return "CMD_RECONNECT";
-            case CMD_HEARTBEAT: return "CMD_HEARTBEAT";
-            case CMD_SPEEDTEST: return "CMD_SPEEDTEST";
-            case CMD_UNINSTALL: return "CMD_UNINSTALL";
-            default: return "";
-        }
-    }
-    inline int stoe(const string & s, TPNS_CMD & e)
-    {
-        if(s == "CMD_PUSH")  { e=CMD_PUSH; return 0;}
-        if(s == "CMD_PULLCONFIG")  { e=CMD_PULLCONFIG; return 0;}
-        if(s == "CMD_REGISTER")  { e=CMD_REGISTER; return 0;}
-        if(s == "CMD_UNREGISTER")  { e=CMD_UNREGISTER; return 0;}
-        if(s == "CMD_RECONNECT")  { e=CMD_RECONNECT; return 0;}
-        if(s == "CMD_HEARTBEAT")  { e=CMD_HEARTBEAT; return 0;}
-        if(s == "CMD_SPEEDTEST")  { e=CMD_SPEEDTEST; return 0;}
-        if(s == "CMD_UNINSTALL")  { e=CMD_UNINSTALL; return 0;}
-
-        return -1;
-    }
-
     enum TPNS_MSG_TYPE
     {
         TYPE_NOTIFY,
@@ -891,74 +851,74 @@ namespace TPNS_PUSH_PROTOCOL
             return "2d6621da659a171d0b436bb9bcfe09fe";
         }
         DeviceInfo()
-        :Imei(""),Model(""),Os(""),Network(""),SdCard(""),SdDouble(""),Display(""),Manu(""),ApiLevel("")
+        :imei(""),model(""),os(""),network(""),sdCard(""),sdDouble(""),resolution(""),manu(""),apiLevel("")
         {
         }
         void resetDefautlt()
         {
-            Imei = "";
-            Model = "";
-            Os = "";
-            Network = "";
-            SdCard = "";
-            SdDouble = "";
-            Display = "";
-            Manu = "";
-            ApiLevel = "";
+            imei = "";
+            model = "";
+            os = "";
+            network = "";
+            sdCard = "";
+            sdDouble = "";
+            resolution = "";
+            manu = "";
+            apiLevel = "";
         }
         template<typename WriterT>
         void writeTo(taf::JceOutputStream<WriterT>& _os) const
         {
-            _os.write(Imei, 0);
-            _os.write(Model, 1);
-            _os.write(Os, 2);
-            _os.write(Network, 3);
-            _os.write(SdCard, 4);
-            _os.write(SdDouble, 5);
-            _os.write(Display, 6);
-            _os.write(Manu, 7);
-            _os.write(ApiLevel, 8);
+            _os.write(imei, 0);
+            _os.write(model, 1);
+            _os.write(os, 2);
+            _os.write(network, 3);
+            _os.write(sdCard, 4);
+            _os.write(sdDouble, 5);
+            _os.write(resolution, 6);
+            _os.write(manu, 7);
+            _os.write(apiLevel, 8);
         }
         template<typename ReaderT>
         void readFrom(taf::JceInputStream<ReaderT>& _is)
         {
             resetDefautlt();
-            _is.read(Imei, 0, false);
-            _is.read(Model, 1, false);
-            _is.read(Os, 2, false);
-            _is.read(Network, 3, false);
-            _is.read(SdCard, 4, false);
-            _is.read(SdDouble, 5, false);
-            _is.read(Display, 6, false);
-            _is.read(Manu, 7, false);
-            _is.read(ApiLevel, 8, false);
+            _is.read(imei, 0, false);
+            _is.read(model, 1, false);
+            _is.read(os, 2, false);
+            _is.read(network, 3, false);
+            _is.read(sdCard, 4, false);
+            _is.read(sdDouble, 5, false);
+            _is.read(resolution, 6, false);
+            _is.read(manu, 7, false);
+            _is.read(apiLevel, 8, false);
         }
         ostream& display(ostream& _os, int _level=0) const
         {
             taf::JceDisplayer _ds(_os, _level);
-            _ds.display(Imei,"Imei");
-            _ds.display(Model,"Model");
-            _ds.display(Os,"Os");
-            _ds.display(Network,"Network");
-            _ds.display(SdCard,"SdCard");
-            _ds.display(SdDouble,"SdDouble");
-            _ds.display(Display,"Display");
-            _ds.display(Manu,"Manu");
-            _ds.display(ApiLevel,"ApiLevel");
+            _ds.display(imei,"imei");
+            _ds.display(model,"model");
+            _ds.display(os,"os");
+            _ds.display(network,"network");
+            _ds.display(sdCard,"sdCard");
+            _ds.display(sdDouble,"sdDouble");
+            _ds.display(resolution,"resolution");
+            _ds.display(manu,"manu");
+            _ds.display(apiLevel,"apiLevel");
             return _os;
         }
         ostream& displaySimple(ostream& _os, int _level=0) const
         {
             taf::JceDisplayer _ds(_os, _level);
-            _ds.displaySimple(Imei, true);
-            _ds.displaySimple(Model, true);
-            _ds.displaySimple(Os, true);
-            _ds.displaySimple(Network, true);
-            _ds.displaySimple(SdCard, true);
-            _ds.displaySimple(SdDouble, true);
-            _ds.displaySimple(Display, true);
-            _ds.displaySimple(Manu, true);
-            _ds.displaySimple(ApiLevel, false);
+            _ds.displaySimple(imei, true);
+            _ds.displaySimple(model, true);
+            _ds.displaySimple(os, true);
+            _ds.displaySimple(network, true);
+            _ds.displaySimple(sdCard, true);
+            _ds.displaySimple(sdDouble, true);
+            _ds.displaySimple(resolution, true);
+            _ds.displaySimple(manu, true);
+            _ds.displaySimple(apiLevel, false);
             return _os;
         }
         int Encode(uint8_t * pui_buff, int32_t * pi_buff_len, pdu_protocol_header * pdu_header)
@@ -1024,19 +984,19 @@ namespace TPNS_PUSH_PROTOCOL
             return 0;
         }
     public:
-        std::string Imei;
-        std::string Model;
-        std::string Os;
-        std::string Network;
-        std::string SdCard;
-        std::string SdDouble;
-        std::string Display;
-        std::string Manu;
-        std::string ApiLevel;
+        std::string imei;
+        std::string model;
+        std::string os;
+        std::string network;
+        std::string sdCard;
+        std::string sdDouble;
+        std::string resolution;
+        std::string manu;
+        std::string apiLevel;
     };
     inline bool operator==(const DeviceInfo&l, const DeviceInfo&r)
     {
-        return l.Imei == r.Imei && l.Model == r.Model && l.Os == r.Os && l.Network == r.Network && l.SdCard == r.SdCard && l.SdDouble == r.SdDouble && l.Display == r.Display && l.Manu == r.Manu && l.ApiLevel == r.ApiLevel;
+        return l.imei == r.imei && l.model == r.model && l.os == r.os && l.network == r.network && l.sdCard == r.sdCard && l.sdDouble == r.sdDouble && l.resolution == r.resolution && l.manu == r.manu && l.apiLevel == r.apiLevel;
     }
     inline bool operator!=(const DeviceInfo&l, const DeviceInfo&r)
     {
