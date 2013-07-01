@@ -140,8 +140,8 @@ public final class TpnsReconnectReq extends com.qq.taf.jce.JceStruct implements 
         if(null == cache_unregisterAppList)
         {
             cache_unregisterAppList = new java.util.ArrayList<TPNS_PUSH_PROTOCOL.AppInfo>();
-            TPNS_PUSH_PROTOCOL.AppInfo __var_2 = new TPNS_PUSH_PROTOCOL.AppInfo();
-            ((java.util.ArrayList<TPNS_PUSH_PROTOCOL.AppInfo>)cache_unregisterAppList).add(__var_2);
+            TPNS_PUSH_PROTOCOL.AppInfo __var_1 = new TPNS_PUSH_PROTOCOL.AppInfo();
+            ((java.util.ArrayList<TPNS_PUSH_PROTOCOL.AppInfo>)cache_unregisterAppList).add(__var_1);
         }
         this.unregisterAppList = (java.util.ArrayList<TPNS_PUSH_PROTOCOL.AppInfo>) _is.read(cache_unregisterAppList, 3, false);
     }

@@ -12,17 +12,17 @@
 #include <string.h>
 #include <limits.h>
 
-//鏀寔iphone
+//支持iphone
 #ifdef __APPLE__
 #include "JceType.h"
 #else
-#include "JceType.h"
+#include "jce/JceType.h"
 #endif
 
 namespace taf
 {
 //////////////////////////////////////////////////////////////////////
-/// 鐢ㄤ簬杈撳嚭
+/// 用于输出
 class JceDisplayer
 {
     std::ostream&   _os;

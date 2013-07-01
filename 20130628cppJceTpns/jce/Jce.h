@@ -12,11 +12,11 @@
 #include <string.h>
 #include <limits.h>
 
-//æ”¯æŒiphone
+//Ö§³Öiphone
 #ifdef __APPLE__
 	#include "JceType.h"
 #else
-	#include "JceType.h"
+	#include "jce/JceType.h"
 #endif
 
 namespace taf
@@ -68,7 +68,7 @@ namespace taf
 //////////////////////////////////////////////////////////////////
 	namespace
 	{
-/// æ•°æ®å¤´ä¿¡æ¯çš„å°è£…ï¼ŒåŒ…æ‹¬ç±»å‹å’Œtag
+/// Êı¾İÍ·ĞÅÏ¢µÄ·â×°£¬°üÀ¨ÀàĞÍºÍtag
 		class DataHead
 		{
 			uint8_t _type;
@@ -107,7 +107,7 @@ namespace taf
 			uint8_t getType() const     { return _type;}
 			void setType(uint8_t t)     { _type = t;}
 
-			/// è¯»å–æ•°æ®å¤´ä¿¡æ¯
+			/// ¶ÁÈ¡Êı¾İÍ·ĞÅÏ¢
 			template<typename InputStreamT>
 			void readFrom(InputStreamT& is)
 			{
@@ -115,7 +115,7 @@ namespace taf
 				is.skip(n);
 			}
 
-			/// è¯»å–å¤´ä¿¡æ¯ï¼Œä½†ä¸å‰ç§»æµçš„åç§»é‡
+			/// ¶ÁÈ¡Í·ĞÅÏ¢£¬µ«²»Ç°ÒÆÁ÷µÄÆ«ÒÆÁ¿
 			template<typename InputStreamT>
 			size_t peekFrom(InputStreamT& is)
 			{
@@ -135,7 +135,7 @@ namespace taf
 				return n;
 			}
 
-			/// å†™å…¥æ•°æ®å¤´ä¿¡æ¯
+			/// Ğ´ÈëÊı¾İÍ·ĞÅÏ¢
 			template<typename OutputStreamT>
 			void writeTo(OutputStreamT& os)
 			{
@@ -154,7 +154,7 @@ namespace taf
 				writeTo(os, _type, _tag);
 			}
 
-			/// å†™å…¥æ•°æ®å¤´ä¿¡æ¯
+			/// Ğ´ÈëÊı¾İÍ·ĞÅÏ¢
 			template<typename OutputStreamT>
 			static void writeTo(OutputStreamT& os, uint8_t type, uint8_t tag)
 			{
@@ -177,12 +177,12 @@ namespace taf
 
 
 //////////////////////////////////////////////////////////////////
-/// ç¼“å†²åŒºè¯»å–å™¨å°è£…
+/// »º³åÇø¶ÁÈ¡Æ÷·â×°
 	class BufferReader
 	{
-		const char *        _buf;		///< ç¼“å†²åŒº
-		size_t              _buf_len;	///< ç¼“å†²åŒºé•¿åº¦
-		size_t              _cur;		///< å½“å‰ä½ç½®
+		const char *        _buf;		///< »º³åÇø
+		size_t              _buf_len;	///< »º³åÇø³¤¶È
+		size_t              _cur;		///< µ±Ç°Î»ÖÃ
 
 	public:
 
@@ -190,14 +190,14 @@ namespace taf
 
 		void reset() { _cur = 0;}
 
-		/// è¯»å–ç¼“å­˜
+		/// ¶ÁÈ¡»º´æ
 		void readBuf(void * buf, size_t len)
 		{
 			peekBuf(buf, len);
 			_cur += len;
 		}
 
-		/// è¯»å–ç¼“å­˜ï¼Œä½†ä¸æ”¹å˜åç§»é‡
+		/// ¶ÁÈ¡»º´æ£¬µ«²»¸Ä±äÆ«ÒÆÁ¿
 		void peekBuf(void * buf, size_t len, size_t offset = 0)
 		{
 			if (_cur + offset + len > _buf_len)
@@ -209,13 +209,13 @@ namespace taf
 			::memcpy(buf, _buf + _cur + offset, len);
 		}
 
-		/// è·³è¿‡lenä¸ªå­—èŠ‚
+		/// Ìø¹ılen¸ö×Ö½Ú
 		void skip(size_t len)
 		{
 			_cur += len;
 		}
 
-		/// è®¾ç½®ç¼“å­˜
+		/// ÉèÖÃ»º´æ
 		void setBuffer(const char * buf, size_t len)
 		{
 			_buf = buf;
@@ -223,7 +223,7 @@ namespace taf
 			_cur = 0;
 		}
 
-		/// è®¾ç½®ç¼“å­˜
+		/// ÉèÖÃ»º´æ
 		template<typename Alloc>
 		void setBuffer(const std::vector<char,Alloc> &buf)
 		{
@@ -233,7 +233,7 @@ namespace taf
 		}
 
 		/**
-		 * åˆ¤æ–­æ˜¯å¦å·²ç»åˆ°BUFçš„æœ«å°¾
+		 * ÅĞ¶ÏÊÇ·ñÒÑ¾­µ½BUFµÄÄ©Î²
 		 */
 		bool hasEnd()
 		{
@@ -241,12 +241,12 @@ namespace taf
 		}
 	};
 
-//å½“jceæ–‡ä»¶ä¸­å«æœ‰æŒ‡é’ˆå‹ç±»å‹çš„æ•°æ®ç”¨MapBufferReaderè¯»å–
-//åœ¨è¯»æ•°æ®æ—¶åˆ©ç”¨MapBufferReaderæå‰åˆ†é…çš„å†…å­˜ å‡å°‘è¿è¡Œè¿‡ç¨‹ä¸­é¢‘ç¹å†…å­˜åˆ†é…
-//ç»“æ„ä¸­å®šä¹‰byteæŒ‡é’ˆç±»å‹ï¼ŒæŒ‡é’ˆç”¨*æ¥å®šä¹‰ï¼Œå¦‚ä¸‹ï¼š
+//µ±jceÎÄ¼şÖĞº¬ÓĞÖ¸ÕëĞÍÀàĞÍµÄÊı¾İÓÃMapBufferReader¶ÁÈ¡
+//ÔÚ¶ÁÊı¾İÊ±ÀûÓÃMapBufferReaderÌáÇ°·ÖÅäµÄÄÚ´æ ¼õÉÙÔËĞĞ¹ı³ÌÖĞÆµ·±ÄÚ´æ·ÖÅä
+//½á¹¹ÖĞ¶¨ÒåbyteÖ¸ÕëÀàĞÍ£¬Ö¸ÕëÓÃ*À´¶¨Òå£¬ÈçÏÂ£º
 //byte *m;
-//æŒ‡é’ˆç±»å‹ä½¿ç”¨æ—¶éœ€è¦MapBufferReaderæå‰è®¾å®šé¢„åˆ†é…å†…å­˜å—setMapBuffer()ï¼Œ
-//æŒ‡é’ˆéœ€è¦å†…å­˜æ—¶é€šè¿‡åç§»æŒ‡å‘é¢„åˆ†é…å†…å­˜å—ï¼Œå‡å°‘è§£ç è¿‡ç¨‹ä¸­çš„å†…å­˜ç”³è¯·
+//Ö¸ÕëÀàĞÍÊ¹ÓÃÊ±ĞèÒªMapBufferReaderÌáÇ°Éè¶¨Ô¤·ÖÅäÄÚ´æ¿ésetMapBuffer()£¬
+//Ö¸ÕëĞèÒªÄÚ´æÊ±Í¨¹ıÆ«ÒÆÖ¸ÏòÔ¤·ÖÅäÄÚ´æ¿é£¬¼õÉÙ½âÂë¹ı³ÌÖĞµÄÄÚ´æÉêÇë
 
 	class MapBufferReader : public BufferReader
 	{
@@ -269,7 +269,7 @@ namespace taf
 
 		size_t left(){return _buf_len-_cur;}
 
-		/// è·³è¿‡lenä¸ªå­—èŠ‚
+		/// Ìø¹ılen¸ö×Ö½Ú
 		void mapBufferSkip(size_t len)
 		{
 			if (_cur + len > _buf_len)
@@ -281,7 +281,7 @@ namespace taf
 			_cur += len;
 		}
 
-		/// è®¾ç½®ç¼“å­˜
+		/// ÉèÖÃ»º´æ
 		void setMapBuffer(char * buf, size_t len)
 		{
 			_buf = buf;
@@ -289,7 +289,7 @@ namespace taf
 			_cur = 0;
 		}
 
-		/// è®¾ç½®ç¼“å­˜
+		/// ÉèÖÃ»º´æ
 		template<typename Alloc>
 		void setMapBuffer(std::vector<char,Alloc> &buf)
 		{
@@ -298,13 +298,13 @@ namespace taf
 			_cur = 0;
 		}
 	public:
-		char *              _buf;		///< ç¼“å†²åŒº
-		size_t              _buf_len;	///< ç¼“å†²åŒºé•¿åº¦
-		size_t              _cur;		///< å½“å‰ä½ç½®
+		char *              _buf;		///< »º³åÇø
+		size_t              _buf_len;	///< »º³åÇø³¤¶È
+		size_t              _cur;		///< µ±Ç°Î»ÖÃ
 	};
 
 //////////////////////////////////////////////////////////////////
-/// ç¼“å†²åŒºå†™å…¥å™¨å°è£…
+/// »º³åÇøĞ´ÈëÆ÷·â×°
 	class BufferWriter
 	{
 		char *  _buf;
@@ -379,7 +379,7 @@ namespace taf
 	};
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
-/// é¢„å…ˆè®¾å®šç¼“å­˜çš„å°è£…å™¨
+/// Ô¤ÏÈÉè¶¨»º´æµÄ·â×°Æ÷
 
 	class BufferWriterBuff
 	{
@@ -457,7 +457,7 @@ namespace taf
 	class JceInputStream : public ReaderT
 	{
 	public:
-		/// è·³åˆ°æŒ‡å®šæ ‡ç­¾çš„å…ƒç´ å‰
+		/// Ìøµ½Ö¸¶¨±êÇ©µÄÔªËØÇ°
 		bool skipToTag(uint8_t tag)
 		{
 			try
@@ -478,7 +478,7 @@ namespace taf
 			return false;
 		}
 
-		/// è·³åˆ°å½“å‰ç»“æ„çš„ç»“æŸ
+		/// Ìøµ½µ±Ç°½á¹¹µÄ½áÊø
 		void skipToStructEnd()
 		{
 			DataHead h;
@@ -489,7 +489,7 @@ namespace taf
 			}while (h.getType() != DataHead::eStructEnd);
 		}
 
-		/// è·³è¿‡ä¸€ä¸ªå­—æ®µ
+		/// Ìø¹ıÒ»¸ö×Ö¶Î
 		void skipField()
 		{
 			DataHead h;
@@ -497,7 +497,7 @@ namespace taf
 			skipField(h.getType());
 		}
 
-		/// è·³è¿‡ä¸€ä¸ªå­—æ®µï¼Œä¸åŒ…å«å¤´ä¿¡æ¯
+		/// Ìø¹ıÒ»¸ö×Ö¶Î£¬²»°üº¬Í·ĞÅÏ¢
 		void skipField(uint8_t type)
 		{
 			switch (type)
@@ -542,7 +542,7 @@ namespace taf
 				break;
 			case DataHead::eList:
 				{
-					Int32 size;
+					Int32 size = 0;
 					read(size, 0);
 					for (Int32 i = 0; i < size; ++i)
 						skipField();
@@ -558,8 +558,16 @@ namespace taf
 						snprintf(s, sizeof(s), "skipField with invalid type, type value: %d, %d.", type, h.getType());
 						throw JceDecodeMismatch(s);
 					}
-					Int32 size;
+
+					Int32 size = 0;
 					read(size, 0);
+					if(size < 0)
+					{
+						char s[64];
+						snprintf(s, sizeof(s), "skipField with invalid field size, %d.", size);
+						throw JceDecodeInvalidValue(s);
+					}
+
 					this->skip(size);
 				}
 				break;
@@ -578,7 +586,7 @@ namespace taf
 			}
 		}
 
-		/// è¯»å–ä¸€ä¸ªæŒ‡å®šç±»å‹çš„æ•°æ®ï¼ˆåŸºæœ¬ç±»å‹ï¼‰
+		/// ¶ÁÈ¡Ò»¸öÖ¸¶¨ÀàĞÍµÄÊı¾İ£¨»ù±¾ÀàĞÍ£©
 		template<typename T>
 		inline T readByType()
 		{
@@ -1077,7 +1085,7 @@ namespace taf
 			}
 		}
 
-		/// è¯»å–ç»“æ„æ•°ç»„
+		/// ¶ÁÈ¡½á¹¹Êı×é
 		template<typename T>
 		void read(T* v, const UInt32 len, UInt32 & readLen, uint8_t tag, bool isRequire = true)
 		{
@@ -1126,7 +1134,7 @@ namespace taf
 			v = (T) n;
 		}
 
-		/// è¯»å–ç»“æ„
+		/// ¶ÁÈ¡½á¹¹
 		template<typename T>
 		void read(T& v, uint8_t tag, bool isRequire = true, typename jce::enable_if<jce::is_convertible<T*, JceStructBase*>, void ***>::type dummy = 0)
 		{
@@ -1383,11 +1391,11 @@ namespace taf
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 }
 
-//æ”¯æŒiphone
+//Ö§³Öiphone
 #ifdef __APPLE__
 	#include "JceDisplayer.h"
 #else
-	#include "JceDisplayer.h"
+	#include "jce/JceDisplayer.h"
 #endif
 
 #endif

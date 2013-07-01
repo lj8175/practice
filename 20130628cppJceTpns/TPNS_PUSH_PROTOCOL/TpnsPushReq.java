@@ -20,7 +20,7 @@ public final class TpnsPushReq extends com.qq.taf.jce.JceStruct implements java.
 
     public long accessId = 0;
 
-    public TPNS_PUSH_PROTOCOL.UUID msgId = null;
+    public String msgId = "";
 
     public String token = "";
 
@@ -38,12 +38,12 @@ public final class TpnsPushReq extends com.qq.taf.jce.JceStruct implements java.
         this.accessId = accessId;
     }
 
-    public TPNS_PUSH_PROTOCOL.UUID getMsgId()
+    public String getMsgId()
     {
         return msgId;
     }
 
-    public void  setMsgId(TPNS_PUSH_PROTOCOL.UUID msgId)
+    public void  setMsgId(String msgId)
     {
         this.msgId = msgId;
     }
@@ -82,7 +82,7 @@ public final class TpnsPushReq extends com.qq.taf.jce.JceStruct implements java.
     {
     }
 
-    public TpnsPushReq(long accessId, TPNS_PUSH_PROTOCOL.UUID msgId, String token, TPNS_PUSH_PROTOCOL.TpnsPushPayload payload, String activity)
+    public TpnsPushReq(long accessId, String msgId, String token, TPNS_PUSH_PROTOCOL.TpnsPushPayload payload, String activity)
     {
         this.accessId = accessId;
         this.msgId = msgId;
@@ -142,17 +142,12 @@ public final class TpnsPushReq extends com.qq.taf.jce.JceStruct implements java.
         _os.write(activity, 4);
     }
 
-    static TPNS_PUSH_PROTOCOL.UUID cache_msgId;
     static TPNS_PUSH_PROTOCOL.TpnsPushPayload cache_payload;
 
     public void readFrom(com.qq.taf.jce.JceInputStream _is)
     {
         this.accessId = (long) _is.read(accessId, 0, true);
-        if(null == cache_msgId)
-        {
-            cache_msgId = new TPNS_PUSH_PROTOCOL.UUID();
-        }
-        this.msgId = (TPNS_PUSH_PROTOCOL.UUID) _is.read(cache_msgId, 1, true);
+        this.msgId =  _is.readString(1, true);
         this.token =  _is.readString(2, true);
         if(null == cache_payload)
         {

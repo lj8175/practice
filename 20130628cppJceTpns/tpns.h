@@ -41,128 +41,6 @@ namespace TPNS_PUSH_PROTOCOL
         return -1;
     }
 
-    struct UUID : public taf::JceStructBase
-    {
-    public:
-        static string className()
-        {
-            return "TPNS_PUSH_PROTOCOL.UUID";
-        }
-        static string MD5()
-        {
-            return "42dd6e1c65c02b2d9d654de5efd33f33";
-        }
-        UUID()
-        :bitsLen(0)
-        {
-            memset(bits, 0, sizeof(bits));
-        }
-        void resetDefautlt()
-        {
-            bitsLen = 0;
-            memset(bits, 0, sizeof(bits));
-        }
-        template<typename WriterT>
-        void writeTo(taf::JceOutputStream<WriterT>& _os) const
-        {
-            _os.write((const taf::Char *)bits, bitsLen, 0);
-        }
-        template<typename ReaderT>
-        void readFrom(taf::JceInputStream<ReaderT>& _is)
-        {
-            resetDefautlt();
-            _is.read(bits, 16, bitsLen, 0, true);
-        }
-        ostream& display(ostream& _os, int _level=0) const
-        {
-            taf::JceDisplayer _ds(_os, _level);
-            _ds.display(bits, bitsLen,"bits");
-            return _os;
-        }
-        ostream& displaySimple(ostream& _os, int _level=0) const
-        {
-            taf::JceDisplayer _ds(_os, _level);
-            _ds.displaySimple(bits, bitsLen,false);
-            return _os;
-        }
-        int Encode(uint8_t * pui_buff, int32_t * pi_buff_len, pdu_protocol_header * pdu_header)
-        {
-            try
-            {
-                int i_len = pdu_header?*pi_buff_len:0;
-                int i_ret = 0;
-                if (pdu_header && (i_ret = ::pdu_header_pack1(pdu_header, pui_buff, (uint32_t *)&i_len)) != 0) { return i_ret; }
-
-                taf::JceOutputStream<taf::BufferWriterBuff> os;
-                os.setBuffer(reinterpret_cast<char *>(pui_buff + i_len), *pi_buff_len - i_len);
-                this->writeTo(os);
-                i_len = i_len + static_cast<int>(os.getLength());
-                if (pdu_header && (i_ret = pdu_header_pack2(pui_buff, (uint32_t *)pi_buff_len, (uint32_t *)&i_len)) != 0) { return i_ret; }
-                *pi_buff_len = i_len;
-            }
-            catch (taf::JceNotEnoughBuff & e)
-            {
-            	 return -100;
-            }
-            catch (taf::JceDecodeInvalidValue & e)
-            {
-            	 return -104;
-            }
-            catch (...)
-            {
-            	 return -1;
-            }
-            return 0;
-        }
-
-        int Decode(uint8_t * pui_buff, int32_t * pi_buff_len, pdu_protocol_header * pdu_header)
-        {
-            try
-            {
-                int i_ret = 0;
-                int i_wup_len = pdu_header?*pi_buff_len:0;
-                int i_end_len = 0;
-                if (pdu_header && (i_ret = pdu_header_unpack(pui_buff, (uint32_t *)&i_wup_len, pdu_header, (uint32_t *)&i_end_len)) != 0) return i_ret;
-
-                taf::JceInputStream<taf::MapBufferReader> is;
-                is.setBuffer(reinterpret_cast<const char*>(pui_buff + i_wup_len), static_cast<size_t>(*pi_buff_len - i_wup_len - i_end_len));
-
-                this->readFrom(is);
-            }
-            catch (taf::JceDecodeMismatch & e)
-            {
-            	return -101;
-            }
-            catch (taf::JceDecodeInvalidValue & e)
-            {
-            	return -104;
-            }
-            catch (taf::JceDecodeRequireNotExist & e)
-            {
-            	return -103;
-            }
-            catch (...)
-            {
-            	return -1;
-            }
-            return 0;
-        }
-    public:
-        taf::UInt32 bitsLen;
-        taf::Char bits[16];
-    };
-    inline bool operator==(const UUID&l, const UUID&r)
-    {
-        return !memcmp(l.bits,r.bits,l.bitsLen);
-    }
-    inline bool operator!=(const UUID&l, const UUID&r)
-    {
-        return !(l == r);
-    }
-    int struct_UUID_pack(UUID * pst_struct, uint8_t * pui_buff, int32_t * pi_buff_len, pdu_protocol_header * pdu_header);
-    int struct_UUID_unpack(uint8_t * pui_buff, int32_t * pi_buff_len, UUID * pst_struct, pdu_protocol_header * pdu_header);
-    int struct_UUID_unpack(uint8_t * pui_buff, int32_t * pi_buff_len, UUID * pst_struct, pdu_protocol_header * pdu_header, uint8_t * pui_mapbuff, int32_t * pi_mapbuff_len);
-
     struct NotifyMsg : public taf::JceStructBase
     {
     public:
@@ -564,15 +442,16 @@ namespace TPNS_PUSH_PROTOCOL
         }
         static string MD5()
         {
-            return "1c8181ab3fdba7efbf6b137d5f6391d8";
+            return "1f5657579a901490b46f40851dce8992";
         }
         TpnsPushReq()
-        :accessId(0),token(""),activity("")
+        :accessId(0),msgId(""),token(""),activity("")
         {
         }
         void resetDefautlt()
         {
             accessId = 0;
+            msgId = "";
             token = "";
             activity = "";
         }
@@ -679,7 +558,7 @@ namespace TPNS_PUSH_PROTOCOL
         }
     public:
         taf::UInt32 accessId;
-        TPNS_PUSH_PROTOCOL::UUID msgId;
+        std::string msgId;
         std::string token;
         TPNS_PUSH_PROTOCOL::TpnsPushPayload payload;
         std::string activity;

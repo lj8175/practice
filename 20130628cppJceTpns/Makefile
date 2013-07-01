@@ -8,7 +8,7 @@ CLEAN = *.o \
         */*.o \
         $(BIN)
 
-INC = 
+INC = -I.
 
 LIB = -lpthread -lm 
 

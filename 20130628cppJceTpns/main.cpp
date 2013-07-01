@@ -22,7 +22,7 @@ int main()
 
     TpnsPushReq tpr;
     tpr.accessId = 1000;
-    memcpy(tpr.msgId.bits,"tpns push", sizeof("tpns push"));
+    tpr.msgId = "tpns msgId";
     tpr.token = "tpns token";
     tpr.payload.type = TYPE_TRANSPARENT;
     tpr.payload.transparentMsg.msg = "tpns msg";
