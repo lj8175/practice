@@ -27,6 +27,7 @@ int main()
     int pkt_len = 0;
     TReqExt req;
 
+    //encode
     trmem_encode(101020276, cache_op_set, seq, key, data, (char*)buf, buf.GetCapacity(), pkt_ptr, pkt_len, -1, 0, 0, -1, &req);
     cout << "pkt_len: " << pkt_len << endl;
     // send
@@ -41,6 +42,11 @@ int main()
     int length = recv(sockfd, (char*)buf,buf.GetCapacity(), 0);
     cout << "recv length: " << length << endl;
     
+    // check pack
+    int ret = trmem_pkt_complete((char*)buf, length);
+    cout << "check recv(1:ok): " << (ret>0) << endl;
+    
+    //decode
     int retcode,ret_seq,ret_bid,op;
     string ret_key;
     int cos;
