@@ -1,23 +1,19 @@
-SRCS =  heap_sort.cpp
-SRCS2 =  heap_sort_recursion.cpp
+SRCS =  buffer.cpp
 
-BIN = main main2
+BIN = main
 
 CLEAN = *.o\
         $(BIN)
 
 INC = 
 
-LIB = 
+LIB =
 
-CPPFLAGS = -g
+CPPFLAGS = -g -Wall
 
 #need not change
 all: $(BIN)
-main : $(SRCS:.cpp=.o)
-	g++ $(CPPFLAGS) -o $@ $^ $(LIB)
-
-main2 : $(SRCS2:.cpp=.o)
+$(BIN) : $(SRCS:.cpp=.o)
 	g++ $(CPPFLAGS) -o $@ $^ $(LIB)
 
 %o : %cpp
