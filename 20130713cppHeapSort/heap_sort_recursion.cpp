@@ -1,6 +1,8 @@
 #include <stdio.h>
 
 #define MAX(a,b) (((a)>(b))?(a):(b))
+#define LEFT(x) (2*x)
+#define RIGHT(x) (LEFT(x)+1)
 
 inline void swap(int &a,int &b)
 {
@@ -11,23 +13,19 @@ inline void swap(int &a,int &b)
 
 void heap_adjust_recursion(int arr[], int begin, int end)
 {
-    if(begin*2<end && arr[begin]<MAX(arr[begin*2], arr[begin*2+1]))
+    int largest=begin;
+    if((LEFT(begin)<=end) && (arr[LEFT(begin)]>arr[begin]))
     {
-        
-        if(arr[begin*2]>arr[begin*2+1])
-        {
-            swap(arr[begin],arr[begin*2]);
-            heap_adjust_recursion(arr, begin*2, end);
-        }
-	else
-        {
-            swap(arr[begin],arr[begin*2+1]);
-            heap_adjust_recursion(arr, begin*2+1, end);
-        }
+        largest=LEFT(begin);
     }
-    else if(begin*2==end && arr[end]>arr[begin])
+    if((RIGHT(begin)<=end) && (arr[RIGHT(begin)]>arr[largest]))
     {
-        swap(arr[begin],arr[end]);
+        largest=RIGHT(begin);
+    }
+    if(largest!=begin)
+    {
+        swap(arr[begin],arr[largest]);
+        heap_adjust_recursion(arr,largest,end);
     }
 }
 
@@ -46,9 +44,7 @@ void heap_sort(int array[], int size)
     }
     for(int i=size; i>1; --i)
     {
-        int tmp = arr[1];
-        arr[1] = arr[i];
-        arr[i] = tmp;
+        swap(arr[1], arr[i]);
         heap_adjust_recursion(arr, 1, i-1); 
     }
 
