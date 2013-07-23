@@ -24,7 +24,7 @@ void hex_print(char* str, int size)
 int main(int argc, char** argv)
 {
     char *source=(char*)"1234567890123456";
-    if (argc>0)
+    if (argc>1)
     {
         source = argv[1];
     }
