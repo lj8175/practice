@@ -8,7 +8,7 @@ CLEAN = *.o\
 
 INC = 
 
-LIB = -lssl -lcrypto
+LIB = -lcrypto
 
 CPPFLAGS = -g -Wall
 
