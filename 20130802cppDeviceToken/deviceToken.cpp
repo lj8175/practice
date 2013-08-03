@@ -45,8 +45,8 @@ string Token_to_deviceId(string token)
     {
         destr[i] = ~(destr[i]);
     }
-    return string(destr, s.size());
 
+    return string(destr, s.size());
 }
 
 

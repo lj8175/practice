@@ -56,16 +56,16 @@ void hex_print(char* str, int size)
 int main(int argc, char** argv)
 {
     char *source=(char*)"1234567890123456";
-    const int len = strlen(source);
     if (argc>1)
     {
         source = argv[1];
     }
+    const int len = strlen(source);
     int ret = 0;
     char aes_en[BUFFER_SIZE]={0};
     char aes_de[BUFFER_SIZE]={0};
 
-    printf("source is  : %s\n", source);
+    printf("size: %d, source  is  : %s\n", len, source);
     ret = AES_Encrypt(source,source,len,aes_en); CHECK_RET(ret);
     hex_print(aes_en, strlen(source));
     ret = AES_Decrypt(source,aes_en,len,aes_de); CHECK_RET(ret);
