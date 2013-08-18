@@ -17,7 +17,7 @@ $(BIN) : $(SRCS:.c=.o)
 	gcc $(CFLAGS) -o $@ $^ $(LIB)
 
 %o : %c
-	g++ $(CFLAGS) $(INC) -c $< -o $@
+	gcc $(CFLAGS) $(INC) -c $< -o $@
 
 clean:
 	rm -rf $(CLEAN)
