@@ -11,23 +11,23 @@
 #include<arpa/inet.h>
 
 
-// error when ret < 0, else ret is fd(fd is set nonblock)
+// error when ret < 0, else return fd
 int async_connect(const char* host, const int port, const int timeout_ms)
 {
     if(NULL==host || 0>=port || 0>timeout_ms) return -1;
 
+    int fret=0;
+    struct timeval tval={timeout_ms/1000, (timeout_ms%1000)*1000};
     int fd = socket(AF_INET, SOCK_STREAM, 0);
     if(fd<=0) return -2;
-    int ret= fcntl(fd, F_GETFL, 0);
-    if (ret==-1)
+    int flags= fcntl(fd, F_GETFL, 0);
+    if (flags<0)
     {
-        close(fd);
-        return -3;
+        fret=-3; goto errout;
     }
-    if (fcntl(fd, F_SETFL, ret|O_NONBLOCK|O_NDELAY)==-1)
+    if (fcntl(fd, F_SETFL, flags|O_NONBLOCK)==-1)
     {
-        close(fd);
-        return -4;
+        fret=-4; goto errout;
     }
     
     struct sockaddr_in  host_addr;    
@@ -35,26 +35,23 @@ int async_connect(const char* host, const int port, const int timeout_ms)
     host_addr.sin_family = AF_INET;
     inet_aton(host,&host_addr.sin_addr);
     host_addr.sin_port = htons(port);
-    ret = connect(fd, (struct sockaddr *)&host_addr, sizeof(host_addr));
-    if(ret==0) return fd;
-    if(ret<0)
+    fret = connect(fd, (struct sockaddr *)&host_addr, sizeof(host_addr));
+    if(fret==0) goto done;
+    if(fret<0)
     {
         if(errno!=EINPROGRESS)
         {
-            close(fd);
-            return -6;
+            fret=-5; goto errout;
         }
     }
     //ret<0 and errno == EINPROGRESS
     fd_set rset, wset;
     FD_ZERO(&rset); FD_SET(fd, &rset);
     wset = rset;
-    struct timeval tval={timeout_ms/1000, (timeout_ms%1000)*1000};
-    ret = select(fd+1, &rset, &wset, NULL, &tval);
-    if(ret<=0)
+    fret = select(fd+1, &rset, &wset, NULL, &tval);
+    if(fret<=0)
     {
-        close(fd);
-        return -7;
+        fret=-6; goto errout;
     }
     if(FD_ISSET(fd, &rset) || FD_ISSET(fd, &wset))
     {
@@ -63,17 +60,25 @@ int async_connect(const char* host, const int port, const int timeout_ms)
         int bok = getsockopt(fd, SOL_SOCKET, SO_ERROR, &error,(socklen_t*)&len);
         if (bok<0 || error)
         {
-            close(fd);
-            return -8;
+            fret=-7; goto errout;
         }
     }
     else
     {
-        close(fd);
-        return -9;
+        fret=-8; goto errout;
     }
 
+done:
+    if (fcntl(fd, F_SETFL, flags)==-1)
+    {
+        fret=-9; goto errout;
+    }
     return fd;
+
+errout:
+    close(fd);
+    return fret;
+    
 }
 
 
