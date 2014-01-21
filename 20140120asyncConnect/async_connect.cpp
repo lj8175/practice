@@ -35,13 +35,17 @@ int async_connect(const char* host, const int port, const int timeout_ms)
     host_addr.sin_family = AF_INET;
     inet_aton(host,&host_addr.sin_addr);
     host_addr.sin_port = htons(port);
-    do
+    ret = connect(fd, (struct sockaddr *)&host_addr, sizeof(host_addr));
+    if(ret==0) return fd;
+    if(ret<0)
     {
-        ret = connect(fd, (struct sockaddr *)&host_addr, sizeof(host_addr));
-    }while(ret<0 && errno==EINPROGRESS);
-
-    if(ret == 0) return fd;
-    
+        if(errno!=EINPROGRESS)
+        {
+            close(fd);
+            return -6;
+        }
+    }
+    //ret<0 and errno == EINPROGRESS
     fd_set rset, wset;
     FD_ZERO(&rset); FD_SET(fd, &rset);
     wset = rset;
@@ -50,7 +54,7 @@ int async_connect(const char* host, const int port, const int timeout_ms)
     if(ret<=0)
     {
         close(fd);
-        return -6;
+        return -7;
     }
     if(FD_ISSET(fd, &rset) || FD_ISSET(fd, &wset))
     {
@@ -60,13 +64,13 @@ int async_connect(const char* host, const int port, const int timeout_ms)
         if (bok<0 || error)
         {
             close(fd);
-            return -7;
+            return -8;
         }
     }
     else
     {
         close(fd);
-        return -8;
+        return -9;
     }
 
     return fd;
