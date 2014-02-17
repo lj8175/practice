@@ -1,0 +1,314 @@
+					Openssl双向认证客户端代码
+openssl是一个功能丰富且自包含的开源安全工具箱。它提供的主要功能有：SSL协议实现(包括SSLv2、SSLv3和TLSv1)、大量软算法(对称/非对称/摘要)、大数运算、非对称算法密钥生成、ASN.1编解码库、证书请求(PKCS10)编解码、数字证书编解码、CRL编解码、OCSP协议、数字证书验证、PKCS7标准实现和PKCS12个人数字证书格式实现等功能。
+	本文主要介绍openssl进行客户端-服务器双向验证的通信，客户端应该如何设置。包括了如何使用openssl指令生成客户端-服务端的证书和密钥，以及使用openssl自带server端来实现简单的ssl双向认证，client端代码中也做了相应的标注和说明，提供编译的Makefile.希望对开始学习如何使用openssl进行安全连接的朋友有益。
+
+1．	首先介绍如何生成客户和服务端证书(PEM)及密钥。
+在linux环境下下载并安装openssl开发包后，通过openssl命令来建立一个SSL测试环境。
+1）	建立自己的CA
+ 在openssl安装目录的misc目录下，运行脚本：./CA.sh -newca，出现提示符时，直接回车。  运行完毕后会生成一个demonCA的目录，里面包含了ca证书及其私钥。
+2）	 生成客户端和服务端证书申请：
+ openssl  req  -newkey  rsa:1024  -out  req1.pem  -keyout  sslclientkey.pem
+	openssl  req  -newkey  rsa:1024  -out  req2.pem  -keyout  sslserverkey.pem
+3)	签发客户端和服务端证书
+openssl  ca  -in  req1.pem  -out  sslclientcert.pem
+openssl  ca  -in  req2.pem  -out  sslservercert.pem
+4)	运行ssl服务端：
+openssl s_server -cert sslservercert.pem -key sslserverkey.pem -CAfile demoCA/cacert.pem -ssl3 
+当然我们也可以使用openssl自带的客户端：
+openssl s_client -ssl3 -CAfile demoCA/cacert.pem
+但这里我们为了介绍client端的设置过程，还是从一下代码来看看如何书写吧。
+2．	程序实例
+客户端程序client.c：
+#include <openssl/ssl.h>
+#include <openssl/crypto.h>
+#include <openssl/err.h>
+#include <openssl/bio.h>
+#include <openssl/pkcs12.h>
+
+#include <unistd.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <errno.h>
+#include <sys/socket.h>
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+
+#define IP "172.22.14.157"
+#define PORT 4433
+#define CERT_PATH "./sslclientcert.pem"
+#define KEY_PATH  "./sslclientkey.pem"
+#define CAFILE "./demoCA/cacert.pem"
+static SSL_CTX *g_sslctx = NULL;
+
+
+int connect_to_server(int fd ,char* ip,int port){
+	struct sockaddr_in svr;
+	memset(&svr,0,sizeof(svr));
+	svr.sin_family = AF_INET;
+	svr.sin_port = htons(port);
+	if(inet_pton(AF_INET,ip,&svr.sin_addr) <= 0){
+		printf("invalid ip address!\n");
+		return -1;
+	}
+	if(connect(fd,(struct sockaddr *)&svr,sizeof(svr))){
+		printf("connect error : %s\n",strerror(errno));
+		return -1;
+	}
+	
+	return 0;
+}
+
+//客户端证书内容输出
+void print_client_cert(char* path)
+{
+	X509 *cert =NULL;
+	FILE *fp = NULL;
+	fp = fopen(path,"rb");
+	//从证书文件中读取证书到x509结构中，passwd为1111,此为生成证书时设置的
+	cert = PEM_read_X509(fp, NULL, NULL, "1111");
+	X509_NAME *name=NULL;
+	char buf[8192]={0};
+	BIO *bio_cert = NULL;
+	//证书持有者信息
+	name = X509_get_subject_name(cert);
+	X509_NAME_oneline(name,buf,8191);
+	printf("ClientSubjectName:%s\n",buf);
+	memset(buf,0,sizeof(buf));
+	bio_cert = BIO_new(BIO_s_mem());
+	PEM_write_bio_X509(bio_cert, cert);
+	//证书内容
+	BIO_read( bio_cert, buf, 8191);
+	printf("CLIENT CERT:\n%s\n",buf);
+	if(bio_cert)BIO_free(bio_cert);
+	fclose(fp);
+	if(cert) X509_free(cert);
+}
+//在SSL握手时，验证服务端证书时会被调用，res返回值为1则表示验证成功，否则为失败
+static int verify_cb(int res, X509_STORE_CTX *xs)
+{
+	printf("SSL VERIFY RESULT :%d\n",res);
+	switch (xs->error)
+	{
+		case X509_V_ERR_UNABLE_TO_GET_CRL:
+			printf(" NOT GET CRL!\n");
+			return 1;
+		default :
+			break;
+	}
+	return res;
+}
+
+int sslctx_init()
+{
+#if 0
+	BIO *bio = NULL;
+	X509 *cert = NULL;
+	STACK_OF(X509) *ca = NULL;
+	EVP_PKEY *pkey =NULL;
+	PKCS12* p12 = NULL;
+	X509_STORE *store =NULL;
+	int error_code =0;
+#endif
+
+	int ret =0;
+	print_client_cert(CERT_PATH);
+	//registers the libssl error strings
+	SSL_load_error_strings();
+	
+	//registers the available SSL/TLS ciphers and digests
+	SSL_library_init();
+	
+	//creates a new SSL_CTX object as framework to establish TLS/SSL
+	g_sslctx = SSL_CTX_new(SSLv23_client_method());
+	if(g_sslctx == NULL){
+		ret = -1;
+		goto end;
+	}
+	
+	//passwd is supplied to protect the private key,when you want to read key
+	SSL_CTX_set_default_passwd_cb_userdata(g_sslctx,"1111");
+	
+	//set cipher ,when handshake client will send the cipher list to server
+	SSL_CTX_set_cipher_list(g_sslctx,"HIGH:MEDIA:LOW:!DH");
+	//SSL_CTX_set_cipher_list(g_sslctx,"AES128-SHA");
+	
+	//set verify ,when recive the server certificate and verify it
+	//and verify_cb function will deal the result of verification
+	SSL_CTX_set_verify(g_sslctx, SSL_VERIFY_PEER, verify_cb);
+	
+	//sets the maximum depth for the certificate chain verification that shall
+	//be allowed for ctx
+	SSL_CTX_set_verify_depth(g_sslctx, 10);
+
+	//load the certificate for verify server certificate, CA file usually load
+	SSL_CTX_load_verify_locations(g_sslctx,CAFILE, NULL);
+	
+	//load user certificate,this cert will be send to server for server verify
+	if(SSL_CTX_use_certificate_file(g_sslctx,CERT_PATH,SSL_FILETYPE_PEM) <= 0){
+		printf("certificate file error!\n");
+		ret = -1;
+		goto end;
+	}
+	//load user private key
+	if(SSL_CTX_use_PrivateKey_file(g_sslctx,KEY_PATH,SSL_FILETYPE_PEM) <= 0){
+		printf("privatekey file error!\n");
+		ret = -1;
+		goto end;
+	}
+	if(!SSL_CTX_check_private_key(g_sslctx)){
+		printf("Check private key failed!\n");
+		ret = -1;
+		goto end;
+	}
+
+end:
+	return ret;
+}
+
+void sslctx_release()
+{
+	EVP_cleanup();
+	if(g_sslctx){
+		SSL_CTX_free(g_sslctx);
+	}
+	g_sslctx= NULL;
+}
+//打印服务端证书相关内容
+void print_peer_certificate(SSL *ssl)
+{
+	X509* cert= NULL;
+	X509_NAME *name=NULL;
+	char buf[8192]={0};
+	BIO *bio_cert = NULL;
+	//获取server端证书
+	cert = SSL_get_peer_certificate(ssl);
+	//获取证书拥有者信息
+	name = X509_get_subject_name(cert);
+	X509_NAME_oneline(name,buf,8191);
+	printf("ServerSubjectName:%s\n",buf);
+	memset(buf,0,sizeof(buf));
+	bio_cert = BIO_new(BIO_s_mem());
+	PEM_write_bio_X509(bio_cert, cert);
+	BIO_read( bio_cert, buf, 8191);
+	//server证书内容
+	printf("SERVER CERT:\n%s\n",buf);
+	if(bio_cert)BIO_free(bio_cert);
+	if(cert)X509_free(cert);
+}
+
+int main(int argc, char** argv){
+	int fd = -1 ,ret = 0;
+	SSL *ssl = NULL;
+	char buf[1024] ={0};
+	//初始化SSL
+	if(sslctx_init()){
+		printf("sslctx init failed!\n");
+		goto out;
+	}
+	//客户端socket建立tcp连接
+	fd = socket(AF_INET,SOCK_STREAM,0);
+	if(fd < 0){
+		printf("socket error:%s\n",strerror(errno));
+		goto out;
+	}
+	
+	if(connect_to_server(fd ,IP,PORT)){
+		printf("can't connect to server:%s:%d\n",IP,PORT);
+		goto out;
+	}
+	ssl = SSL_new(g_sslctx);
+	if(!ssl){
+		printf("can't get ssl from ctx!\n");
+		goto out;
+	}
+	SSL_set_fd(ssl,fd);
+	//建立与服务端SSL连接
+	ret = SSL_connect(ssl);
+	if(ret != 1){
+		int err = ERR_get_error();
+		printf("Connect error code: %d ,string: %s\n",err,ERR_error_string(err,NULL));
+		goto out;
+	}
+	//输入服务端证书内容
+	print_peer_certificate(ssl);
+
+	//SSL_write(ssl,"sslclient test!",strlen("sslclient test!"));
+	//SSL_read(ssl,buf,1024);
+	//关闭SSL连接
+	SSL_shutdown(ssl);
+
+
+out:
+	if(fd >0)close(fd);
+	if(ssl != NULL){
+		SSL_free(ssl);
+		ssl = NULL;
+	}
+	if(g_sslctx != NULL) sslctx_release();
+	return 0;
+}
+
+3.将代码与证书和密钥拷贝到相同路径下，编辑Makefile并make，最终生成了client的可执行文件，当然，在代码里我们要连接的服务端的Ip和port被写死了，因此可以更改代码后在make.
+Makefile如下:
+TOP = ..
+CC = gcc
+BIN = ../bin
+INCS +=  -I /usr/local/include
+INCS +=  -I ../include
+CFLAGS += -g
+LIBDIR = -L ../lib/ -L/usr/local/lib
+LIBS += $(LIBDIR) -lssl
+
+PROXY_OBJS = client.o
+TARGET_TEST = client
+
+$(TARGET_TEST):$(PROXY_OBJS)
+        $(CC) $(CFLAGS) -o $(TARGET_TEST) $(PROXY_OBJS) $(INCS) $(LIBS)
+        rm -rf $(PROXY_OBJS)
+clean:
+        rm -rf $(PROXY_OBJS) $(TARGET_TEST)
+
+5.执行client文件，可以输出client 证书和server证书的一些信息。
+ClientSubjectName:/C=CN/ST=BJ/O=NET/OU=NET/CN=cc/emailAddress=ccc@126.com
+CLIENT CERT:
+-----BEGIN CERTIFICATE-----
+MIICrjCCAhegAwIBAgIJAPIKI5KT9AeyMA0GCSqGSIb3DQEBBQUAME0xCzAJBgNV
+BAYTAkNOMQswCQYDVQQIEwJCSjERMA8GA1UEChMIRk9SVElORVQxETAPBgNVBAsT
+CEZPUlRJTkVUMQswCQYDVQQDEwJDSzAeFw0xMjAzMjcwMzU1NDRaFw0xMzAzMjcw
+MzU1NDRaMGgxCzAJBgNVBAYTAkNOMQswCQYDVQQIEwJCSjERMA8GA1UEChMIRk9S
+VElORVQxETAPBgNVBAsTCEZPUlRJTkVUMQswCQYDVQQDEwJDSzEZMBcGCSqGSIb3
+DQEJARYKY2tAMTI2LmNvbTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEA5Kxs
+8FvA4vJUU6yBsvZENOJsOirStuFaNUKxgLEyRKTSLH4Ir72rZo519p31WXFVCobM
+pKk10pz4hraTzhXZnDLy33ys+NvJarBfkTWFcddOeXc/S6pqWeUmyH16RCOJI2PX
+GpHUk7AN2fpoeXst0dkQyeoM0pzTXUvB5lA+HlkCAwEAAaN7MHkwCQYDVR0TBAIw
+ADAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQgQ2VydGlmaWNhdGUw
+HQYDVR0OBBYEFB31aX7Kg2I7ESWdE6GX/TAcTc9LMB8GA1UdIwQYMBaAFDwlJYH7
+37DnmJBqD8HkmKGijUW7MA0GCSqGSIb3DQEBBQUAA4GBAEBd3x6Eg4JczmwJzcTV
+JQ7hWX0CxIwxE0XkuprL81/Vn3OFSbphiZTM7k5gXwow+emWwJ1rHcC1nma8xUlH
+TMrd4EEPilyYGyi6qhsA0AaMmTPMBFsVeSrRzvz//HEDhFfz+cItkWMFY9ND7J8f
+eS7fzZlNhKCMDrtOK9HdFyCe
+-----END CERTIFICATE-----
+
+SSL VERIFY RESULT :1
+SSL VERIFY RESULT :1
+ServerSubjectName:/C=CN/ST=BJ/O=NET/OU=NET/CN=cc/emailAddress=FSFDS
+SERVER CERT:
+-----BEGIN CERTIFICATE-----
+MIICqTCCAhKgAwIBAgIJAPIKI5KT9AezMA0GCSqGSIb3DQEBBQUAME0xCzAJBgNV
+BAYTAkNOMQswCQYDVQQIEwJCSjERMA8GA1UEChMIRk9SVElORVQxETAPBgNVBAsT
+CEZPUlRJTkVUMQswCQYDVQQDEwJDSzAeFw0xMjAzMjcwNDAwMzhaFw0xMzAzMjcw
+NDAwMzhaMGMxCzAJBgNVBAYTAkNOMQswCQYDVQQIEwJCSjERMA8GA1UEChMIRk9S
+VElORVQxETAPBgNVBAsTCEZPUlRJTkVUMQswCQYDVQQDEwJDSzEUMBIGCSqGSIb3
+DQEJARYFRlNGRFMwgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAN9o7UHaCDA/
+c5jr2unQeosW9qsD0cnvjD71N3yzmarzqthxlidiHaDQeiin/4iJYUc+eZKx1T+V
+Y2/gxQp6/MTtrJ9DluQbCrKmDPNxEphY73peIBaUS1Y0GHuYPKysNJMprKwNd24L
+pA5XQRuIE3kiVxSCrF6zsCqkXMY/8rL9AgMBAAGjezB5MAkGA1UdEwQCMAAwLAYJ
+YIZIAYb4QgENBB8WHU9wZW5TU0wgR2VuZXJhdGVkIENlcnRpZmljYXRlMB0GA1Ud
+DgQWBBRjaM4sgwrG1Xuaz/EBvPUxNm5sUjAfBgNVHSMEGDAWgBQ8JSWB+9+w55iQ
+ag/B5Jihoo1FuzANBgkqhkiG9w0BAQUFAAOBgQB9BJYgp/7Vb+1ez3gbvhpPDsF0
+pap9RU2+QzpyxkbYs5XmvKiihzp55qa1oy0NGCGFW8GJBarxxhM3k07xCO2uX7tj
+aLsJsAyAwamqPUyXWuiMkyu4YLP09qHdTwe7NPxVcCJXM1++l/pLyNKjIB0CsqLv
+6Dhql0KRCDh0ahGdZQ==
+-----END CERTIFICATE-----
