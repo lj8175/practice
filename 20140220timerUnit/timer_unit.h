@@ -5,9 +5,11 @@
 #include <stdlib.h>
 #include <sys/time.h>
 #include <list>
+#include <map>
 #include "singleton.h"
 
 using std::list;
+using std::map;
 
 static inline int64_t GET_TIMESTAMP(void)
 {
@@ -40,6 +42,7 @@ public:
         m_exp = exp*1000 + GET_TIMESTAMP();
     }
     int64_t GetExpireTime() { return m_exp; }
+    void DisableTimer() { m_exp = -1; }
 private:
     int64_t m_exp;
 };
@@ -55,7 +58,7 @@ public:
     int CheckExpired(int64_t now = 0);
 
 private:
-    list<CTimerObject*> m_tobjList;
+    map<int, list<CTimerObject*>*> m_tobjListMap;
     CTimerUnit(void){}
 
 };

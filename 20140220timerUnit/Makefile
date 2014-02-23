@@ -10,7 +10,7 @@ INC =
 
 LIB = 
 
-CPPFLAGS = -g -Wall
+CPPFLAGS = -g -Wall 
 
 #need not change
 all: $(BIN)
