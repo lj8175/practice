@@ -19,9 +19,10 @@ bool CTimerUnit::AddTimerObject(int timeoutMs, CTimerObject* obj)
     obj->SetExpireTimeMs(timeoutMs);
     if (m_tobjListMap.find(timeoutMs) == m_tobjListMap.end())
     {
-        m_tobjListMap[timeoutMs] = new list<CTimerObject*>;
+        list<CTimerObject*> tmpl;
+        m_tobjListMap[timeoutMs] = tmpl;
     }
-    m_tobjListMap[timeoutMs]->push_back(obj);
+    m_tobjListMap[timeoutMs].push_back(obj);
     return true;
 }
 
@@ -33,18 +34,16 @@ int CTimerUnit::CheckExpired(int64_t now)
         now = GET_TIMESTAMP();
     }
     list<CTimerObject*> needNotify;
-    for (map<int, list<CTimerObject*>*>::iterator it=m_tobjListMap.begin(); it!=m_tobjListMap.end(); )
+    for (map<int, list<CTimerObject*> >::iterator it=m_tobjListMap.begin(); it!=m_tobjListMap.end(); )
     {
-        if ((*(it->second)).empty())
+        if ((it->second).empty())
         {
             m_tobjListMap.erase(it++);
-            delete it->second;
         }
         else
         {
-            list<CTimerObject*> *timerList = it->second;
-            list<CTimerObject*>::iterator lit;
-            for (lit=timerList->begin(); lit!=timerList->end(); )
+            list<CTimerObject*>* timerList = &it->second;
+            for (list<CTimerObject*>::iterator lit=timerList->begin(); lit!=timerList->end(); )
             {
                 if ((*lit)->GetExpireTime()<=now)
                 {

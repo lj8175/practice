@@ -58,7 +58,7 @@ public:
     int CheckExpired(int64_t now = 0);
 
 private:
-    map<int, list<CTimerObject*>*> m_tobjListMap;
+    map<int, list<CTimerObject*> > m_tobjListMap;
     CTimerUnit(void){}
 
 };

@@ -7,12 +7,12 @@ class CTimer: public CTimerObject
 public:
     CTimer()
     {
-        CTimerUnit::Instance().AddTimerObject(1, this);
+        CTimerUnit::Instance().AddTimerObject(300, this);
     }
     void TimerNotify()
     {
         printf("[%d] Hello Timer!\n", (int)time(NULL));
-        CTimerUnit::Instance().AddTimerObject(1000, this);
+        CTimerUnit::Instance().AddTimerObject(500, this);
     }
 };
 
