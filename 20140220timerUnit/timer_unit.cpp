@@ -33,7 +33,7 @@ int CTimerUnit::CheckExpired(int64_t now)
     {
         now = GET_TIMESTAMP();
     }
-    list<CTimerObject*> needNotify;
+    static list<CTimerObject*> needNotify;
     for (map<int, list<CTimerObject*> >::iterator it=m_tobjListMap.begin(); it!=m_tobjListMap.end(); )
     {
         if ((it->second).empty())
@@ -52,7 +52,7 @@ int CTimerUnit::CheckExpired(int64_t now)
                 }
                 else
                 {
-                    lit++;
+                    break;
                 }
             }
             it++;

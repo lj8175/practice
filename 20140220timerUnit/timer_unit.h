@@ -44,7 +44,7 @@ public:
     int64_t GetExpireTime() { return m_exp; }
     void DisableTimer() { m_exp = -1; }
 private:
-    int64_t m_exp;
+    int64_t m_exp; //-1表示禁用
 };
 
 class CTimerUnit
