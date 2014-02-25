@@ -23,9 +23,6 @@ static inline int64_t GET_TIMESTAMP(void)
     for(typeof((container).begin()) it = (container).begin();it!=(container).end();++it)
 #endif
 
-
-#define TIMESTAMP_PRECISION 1000ULL
-
 /*
  * @brief: 定时的任务：实现定时回调
  */
