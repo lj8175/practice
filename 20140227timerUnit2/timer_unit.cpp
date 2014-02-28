@@ -28,20 +28,17 @@ int CTimerUnit::CheckExpired(int64_t now)
     {
         now = GET_TIMESTAMP();
     }
-    if (!m_tobjQueue.empty())
+    while (!m_tobjQueue.empty())
     {
-        for(size_t i=0; i<m_tobjQueue.size(); i++)
+        if (m_tobjQueue.top()->GetExpireTime() <= now)
         {
-            if (m_tobjQueue.top()->GetExpireTime() <= now && m_tobjQueue.top()->GetExpireTime()!=TIMEROBJ_DISABLED)
-            {
-                m_tobjQueue.top()->TimerNotify();
-                m_tobjQueue.pop();
-                ret++;
-            }
-            else
-            {
-                break;
-            }
+            m_tobjQueue.top()->TimerNotify();
+            m_tobjQueue.pop();
+            ret++;
+        }
+        else
+        {
+            break;
         }
     }
 

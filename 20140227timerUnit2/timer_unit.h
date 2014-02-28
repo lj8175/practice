@@ -33,9 +33,8 @@ public:
         m_exp = exp*1000 + GET_TIMESTAMP();
     }
     int64_t GetExpireTime() { return m_exp; }
-    void DisableTimer() { m_exp = TIMEROBJ_DISABLED; }
 private:
-    int64_t m_exp; //-1表示禁用
+    int64_t m_exp;
 };
 
 struct CTimerObjCompare
