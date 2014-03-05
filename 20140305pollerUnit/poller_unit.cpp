@@ -1,0 +1,55 @@
+#include "poller_unit.h"
+#include <unistd.h>
+#include <fcntl.h>
+
+CPollerObject::CPollerObject(CPollerUnit *pollerUnit, int netFd) : m_pollerUnit(pollerUnit), m_netFd(netFd)
+{
+    bzero(&m_event, sizeof(struct epoll_event));
+    m_event.data.fd = netFd;
+}
+
+void CPollerUnit::Init(int maxPollers)
+{
+    m_maxPollers = maxPollers;
+    if ((m_epFd = epoll_create(m_maxPollers)) == -1)
+        perror("epoll_create error");
+    if ((m_events = (struct epoll_event*)calloc(m_maxPollers, sizeof(struct epoll_event))) == NULL)
+        perror("calloc error");
+}
+
+CPollerUnit::~CPollerUnit()
+{
+    free(m_events);
+    close(m_epFd);
+}
+
+int CPollerUnit::AddPollerObj(CPollerObject *obj)
+{
+    if (obj->GetNetFd() == -1) return -1;
+    int flag = fcntl(obj->GetNetFd(), F_GETFL);
+    fcntl(obj->GetNetFd(), F_SETFL, O_NONBLOCK | flag);
+
+    m_pollerObjs[obj->GetNetFd()] = obj;
+    return epoll_ctl(m_epFd, EPOLL_CTL_ADD, obj->GetNetFd(), obj->GetEventPointer());
+}
+int CPollerUnit::DelPollerObj(CPollerObject *obj)
+{
+    m_pollerObjs.erase(obj->GetNetFd());
+    return epoll_ctl(m_epFd, EPOLL_CTL_DEL, obj->GetNetFd(), obj->GetEventPointer());
+
+}
+
+void CPollerUnit::WaitAndProcess(int ms)
+{
+    int numEvents = epoll_wait (m_epFd, m_events, m_maxPollers, ms);
+    for(int i=0; i<numEvents; ++i)
+    {
+        if(m_events[i].events & EPOLLIN)
+            m_pollerObjs[m_events[i].data.fd]->InputNotify();
+        if(m_events[i].events & EPOLLOUT)
+            m_pollerObjs[m_events[i].data.fd]->OutputNotify();
+        if(m_events[i].events & EPOLLHUP)
+            m_pollerObjs[m_events[i].data.fd]->HangupNotify();
+    }
+
+}
