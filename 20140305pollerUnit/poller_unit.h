@@ -18,6 +18,7 @@ public:
 
     int AddPollerObj(CPollerObject *obj);
     int DelPollerObj(CPollerObject *obj);
+    int ModPollerObj(CPollerObject *obj);
 
     void WaitAndProcess(int ms);
 
@@ -31,7 +32,7 @@ private:
 
 class CPollerObject {
 public:
-	CPollerObject (CPollerUnit *pollerUnit, int netFd);
+	CPollerObject (CPollerUnit *pollerUnit, int netFd=-1);
 	virtual ~CPollerObject (){};
 
 	virtual int InputNotify() = 0;
@@ -65,21 +66,30 @@ public:
 	    return m_pollerUnit->DelPollerObj(this);
 	}
 
+	int ApplyEvents(){
+		return m_pollerUnit->ModPollerObj(this);
+	}
+
 	void SetNetFd(int netFd){
-	    m_netFd = netFd;
 	    m_event.data.fd = netFd;
 	}
 	int GetNetFd(){
-	    return m_netFd;
+	    return m_event.data.fd;
 	}
 	struct epoll_event *GetEventPointer(){
 	    return &m_event;
 	}
-
+	uint32_t GetOldEvent(){
+		return m_oldEvent;
+	}
+	void UpdateOldEvent(uint32_t event){
+		m_oldEvent = event;
+	}
 protected:
 	CPollerUnit *m_pollerUnit;
-	int m_netFd;
+private:
 	struct epoll_event m_event;
+	uint32_t m_oldEvent;
 };
 
 

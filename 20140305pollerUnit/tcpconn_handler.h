@@ -21,8 +21,9 @@ public:
     int HangupNotify(){return 0;}
 
     bool isOpened(){
-        return m_netFd==-1;
+        return GetNetFd()==-1;
     }
+
 private:
     void Close();
 };

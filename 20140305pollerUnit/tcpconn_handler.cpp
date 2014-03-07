@@ -9,6 +9,11 @@
 #include "tcpconn_handler.h"
 #include <errno.h>
 #include <sys/socket.h>
+#include <stdio.h>
+#include <unistd.h>
+#include "ssl_connector.h"
+
+extern CSslConnector *g_sc;
 
 CTcpConnHandler::CTcpConnHandler(CPollerUnit *pollerUnit, int netFd) : CPollerObject(pollerUnit, netFd)
 {
@@ -23,7 +28,7 @@ CTcpConnHandler::~CTcpConnHandler(){}
 int CTcpConnHandler::InputNotify()
 {
     char recvBuf[1<<12];
-    int32_t ret = recv(m_netFd, recvBuf, 1<<12, 0);
+    int32_t ret = recv(GetNetFd(), recvBuf, 1<<12, 0);
     if (-1 == ret)
     {
         if ((errno == EINTR) || (errno == EAGAIN) || (errno == EINPROGRESS))
@@ -41,14 +46,15 @@ int CTcpConnHandler::InputNotify()
     }
     else
     {
-        printf("netFd[%d] recv [%s]\n", m_netFd, recvBuf);
+        printf("netFd[%d] recv [%s]\n", GetNetFd(), recvBuf);
+        g_sc->Send(recvBuf);
     }
     return 0;
 }
 
 void CTcpConnHandler::Close()
 {
-    close(m_netFd);
-    m_netFd = -1;
+    close(GetNetFd());
+    SetNetFd(-1);
     DetachPollerUnit();
 }
