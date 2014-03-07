@@ -46,6 +46,7 @@ int CPollerUnit::DelPollerObj(CPollerObject *obj)
 int CPollerUnit::ModPollerObj(CPollerObject *obj)
 {
 	int ret = 0;
+	if (!obj) return -1;
 	if (obj->GetOldEvent() != obj->GetEventPointer()->events)
 	{
 		obj->UpdateOldEvent(obj->GetEventPointer()->events);
@@ -65,7 +66,8 @@ void CPollerUnit::WaitAndProcess(int ms)
             m_pollerObjs[m_events[i].data.fd]->OutputNotify();
         if(m_events[i].events & EPOLLHUP)
             m_pollerObjs[m_events[i].data.fd]->HangupNotify();
-        ModPollerObj(m_pollerObjs[m_events[i].data.fd]);
+        if(m_pollerObjs.find(m_events[i].data.fd)!=m_pollerObjs.end())
+        	ModPollerObj(m_pollerObjs[m_events[i].data.fd]);
     }
 
 }
