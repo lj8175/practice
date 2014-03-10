@@ -64,7 +64,7 @@ void CPollerUnit::WaitAndProcess(int ms)
             m_pollerObjs[m_events[i].data.fd]->InputNotify();
         if(m_events[i].events & EPOLLOUT)
             m_pollerObjs[m_events[i].data.fd]->OutputNotify();
-        if(m_events[i].events & EPOLLHUP)
+        if(m_events[i].events & (EPOLLHUP|EPOLLERR))
             m_pollerObjs[m_events[i].data.fd]->HangupNotify();
         if(m_pollerObjs.find(m_events[i].data.fd)!=m_pollerObjs.end())
         	ModPollerObj(m_pollerObjs[m_events[i].data.fd]);
