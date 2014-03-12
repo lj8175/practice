@@ -22,12 +22,13 @@ public:
     friend class singleton_default<CProcUnit>;
     static CProcUnit& Instance() {return SINGLETON_REF(CProcUnit);}
 
-    int AddProcObject(CProcObject* obj);
+    int Start(int argc, char* argv[]);
 
 private:
     bool m_bjRun;
     map<int, CProcObject*> m_pobjMap;
     CProcUnit(){}
+    int DealCmdOpt(int argc, char* argv[]);
 };
 
 

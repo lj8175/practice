@@ -47,13 +47,15 @@ int CTcpConnHandler::InputNotify()
     else
     {
         printf("netFd[%d] recv [%s]\n", GetNetFd(), recvBuf);
-        g_sc->Send(recvBuf);
+        string stemp;
+        g_sc->Send(stemp.assign(recvBuf, ret));
     }
     return 0;
 }
 
 void CTcpConnHandler::Close()
 {
+	printf("serv handler fd[%d] closed\n", GetNetFd());
     close(GetNetFd());
     SetNetFd(-1);
     DetachPollerUnit();
