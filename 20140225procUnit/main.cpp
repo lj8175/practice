@@ -18,7 +18,7 @@ class CProc : public CProcObject
 int main(int argc, char* argv[])
 {
     CProc p1, p2;
-    CProcUnit::Instance().AddProcObject(&p1);
-    CProcUnit::Instance().AddProcObject(&p2);
-    CProcUnit::Instance().Start(argc, argv);
+    CProcUnit::Instance()->AddProcObject(&p1);
+    CProcUnit::Instance()->AddProcObject(&p2);
+    CProcUnit::Instance()->Start(argc, argv);
 }

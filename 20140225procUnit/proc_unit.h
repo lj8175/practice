@@ -1,7 +1,6 @@
 #ifndef PROC_UNIT_H_
 #define PROC_UNIT_H_
 
-#include "singleton.h"
 #include <map>
 
 using std::map;
@@ -16,8 +15,10 @@ public:
 class CProcUnit
 {
 public:
-    friend class singleton_default<CProcUnit>;
-    static CProcUnit& Instance() {return SINGLETON_REF(CProcUnit);}
+    static CProcUnit* Instance() {
+        if(!m_instance) m_instance = new CProcUnit();
+        return m_instance;
+    }
     void AddProcObject(CProcObject *obj)
     {
         m_procMap[obj] = 0;
@@ -26,11 +27,13 @@ public:
     int Start(int argc, char* argv[]);
 
 private:
+    static CProcUnit* m_instance;
     map<CProcObject*, int> m_procMap;
     CProcUnit(){}
     int DealCmdOpt(int argc, char* argv[]);
     static void SignalHandler(int signo);
     static bool m_stoped;
+    static bool m_isUnit;
     void SetupSignal();
     void StartProcs();
     void MonitorProcs();

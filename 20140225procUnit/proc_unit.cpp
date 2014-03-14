@@ -8,6 +8,8 @@
 #include <errno.h>
 
 bool CProcUnit::m_stoped = false;
+bool CProcUnit::m_isUnit = true;
+CProcUnit* CProcUnit::m_instance=NULL;
 
 
 int CProcUnit::DealCmdOpt(int argc, char* argv[])
@@ -42,8 +44,8 @@ void CProcUnit::SignalHandler(int signo)
 {
     pid_t pid = getpid();
     printf("pid[%d] recv signal[%d], exit now\n", pid, signo);
-    m_stoped = true;
-    if(signo==SIGQUIT) exit(0);
+    if(m_isUnit) m_stoped = true;
+    else exit(0);
 
 }
 
@@ -57,7 +59,6 @@ void CProcUnit::SetupSignal()
     // 设置关键信号非阻塞
     sigset_t sset;
     sigset_t osset;
-
     sigemptyset(&sset);
     sigaddset(&sset, SIGSEGV);
     sigaddset(&sset, SIGBUS);
@@ -74,6 +75,7 @@ void CProcUnit::SetupSignal()
     sigaction(SIGTERM, &sa, NULL);
     sigaction(SIGQUIT, &sa, NULL);
     sigaction(SIGSEGV, &sa, NULL);
+    sigaction(SIGTSTP, &sa, NULL);
 }
 
 void CProcUnit::StartProcs()
@@ -90,6 +92,7 @@ void CProcUnit::StartProcs()
         }
         else if(pid==0) //children
         {
+            m_isUnit=false;
             it->first->Run();
             exit(0);
         }
@@ -133,7 +136,7 @@ void CProcUnit::KillProcs()
 m_procMap.end(); it++)
     {
         if(it->second==0) continue;
-        kill(it->second, SIGQUIT);
+        kill(it->second, SIGTERM);
     }
 }
 
