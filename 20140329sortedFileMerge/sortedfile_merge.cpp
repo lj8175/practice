@@ -1,4 +1,3 @@
-
 #include "sortedfile_merge.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -25,7 +24,7 @@ int SortedFileMerge::Merge(vector<string> inFileNames, string outFileName, int o
     FILE *ofp = fopen(outFileName.c_str(), "w");
     if(ofp==NULL)
     {
-        printf("can not open out file[%s]\n", outFileName.c_str());
+        PRINTF("can not open out file[%s]\n", outFileName.c_str());
         return -1;
     }
     
@@ -34,7 +33,7 @@ int SortedFileMerge::Merge(vector<string> inFileNames, string outFileName, int o
         fp[i]=fopen(inFileNames[i].c_str(), "r");
         if (fp[i]==NULL)
         {
-            printf("can not open in file[%s]\n", inFileNames[i].c_str());
+            PRINTF("can not open in file[%s]\n", inFileNames[i].c_str());
             for (int j=i-1; j>=0; --j)
             {
                 fclose(fp[j]);
@@ -61,11 +60,11 @@ int SortedFileMerge::Merge(vector<string> inFileNames, string outFileName, int o
             if (fp[index] == NULL) continue;
             if ( (read[index]=getline(&line[index], &len[index], fp[index]))!=-1 )
             {
-                printf("line [%s] from file[%s]\n", line[index], inFileNames[index].c_str());
+                PRINTF("load line [%s] from file[%s]\n", line[index], inFileNames[index].c_str());
             }
             else
             {
-                printf("close file[%s]\n", inFileNames[index].c_str());
+                PRINTF("close in file[%s]\n", inFileNames[index].c_str());
                 fclose(fp[index]);
                 fp[index] = NULL;
                 free(line[index]);
@@ -103,15 +102,40 @@ int SortedFileMerge::Merge(vector<string> inFileNames, string outFileName, int o
         if(op == OP_OR)
         {
             int slen = (min)?strlen(min):0;
-            if(slen>0 && strcmp(min, lastWrite)>0)
+            if(slen>0)
             {
-                fwrite(min, slen, 1, ofp);
-                strncpy(lastWrite, min, 512);
+                if(strcmp(min, lastWrite)>0)
+                {
+                    fwrite(min, slen, 1, ofp);
+                    strncpy(lastWrite, min, 512);
+                }
+                else
+                {
+                    PRINTF("skip misordered content[%s]\n", min);
+                }
+            }
+        }
+        else if(op == OP_AND  &&  (int)minIndex.size() == fileNum)
+        {
+            int slen = (min)?strlen(min):0;
+            if(slen>0)
+            {
+                if(strcmp(min, lastWrite)>0)
+                {
+                    PRINTF("write [%s] to outfile \n", min);
+                    fwrite(min, slen, 1, ofp);
+                    strncpy(lastWrite, min, 512);
+                }
+                else
+                {
+                    PRINTF("skip misordered content[%s]\n", min);
+                }
             }
         }
 
     } while(closeFileNum<fileNum);
 
     fclose(ofp);
+    PRINTF("close out file[%s], and return\n", outFileName.c_str());
     return 0;
 }

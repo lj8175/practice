@@ -2,6 +2,12 @@
 #include <string>
 #include <vector>
 
+#ifdef DEBUG
+#define PRINTF(x...)
+#else
+#define PRINTF(x...) printf(x)
+#endif
+
 using std::map;
 using std::string;
 using std::vector;
@@ -14,8 +20,6 @@ public:
         OP_OR = 0,
         OP_AND = 1,
     };
-    int Merge(vector<string> inFileNames, string outFileName, int op = OP_OR);
+    static int Merge(vector<string> inFileNames, string outFileName, int op = OP_OR);
 
-private:
-    map<int, string> m_fdFileMap;
 };
