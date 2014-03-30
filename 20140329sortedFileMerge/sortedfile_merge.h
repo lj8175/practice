@@ -20,6 +20,6 @@ public:
         OP_OR = 0,
         OP_AND = 1,
     };
-    static int Merge(vector<string> inFileNames, string outFileName, int op = OP_OR);
+    static int Merge(vector<string> inFileNames, const string outFileName, const int op = OP_OR);
 
 };

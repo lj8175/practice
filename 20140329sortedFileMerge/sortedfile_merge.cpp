@@ -5,9 +5,9 @@
 
 using namespace std;
 
-int SortedFileMerge::Merge(vector<string> inFileNames, string outFileName, int op)
+int SortedFileMerge::Merge(vector<string> inFileNames, const string outFileName, const int op)
 {
-    int fileNum = inFileNames.size();
+    const int fileNum = inFileNames.size();
     FILE *fp[fileNum];
     char *line[fileNum];
     size_t len[fileNum];
@@ -136,6 +136,6 @@ int SortedFileMerge::Merge(vector<string> inFileNames, string outFileName, int o
     } while(closeFileNum<fileNum);
 
     fclose(ofp);
-    PRINTF("close out file[%s], and return\n", outFileName.c_str());
+    PRINTF("close out file[%s], return now\n", outFileName.c_str());
     return 0;
 }
