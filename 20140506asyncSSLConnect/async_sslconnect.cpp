@@ -95,6 +95,9 @@ bool ssl_connect()
                  epoll_ctl(epfd, EPOLL_CTL_MOD, fd, &ev);
                  printf("ssl connect SSL_ERROR_WANT_READ\n");
                  break;
+            default:
+                printf("SSL_connect err=%s\n",ERR_error_string(retcode,0));
+                return true;
     }
     return false;
 
