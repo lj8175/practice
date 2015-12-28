@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "st.h"
 
 void* do_sleep(void* arg){
