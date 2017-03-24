@@ -1,0 +1,2 @@
+int mycount;
+void foo();
